@@ -7,6 +7,7 @@ public class Client1 {
     private static final int SERVER_PORT = 4000;
     private static final String[] CARD_VALUES = {"ace","2","3","4","5","6","7","8","9","10","jack","queen","king"};
     private static String pick = "";
+    private static Set<Integer> generatedNumbers = new HashSet<>();
     public static void main(String[] args) {
         try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -15,19 +16,29 @@ public class Client1 {
             System.out.println("client1 Connected to server");
 
             String message;
-            // for (int round = 1; round <= 13; round++) {   
             while ((message = in.readLine()) != null) {
                 System.out.println(message);
-
-                pick = CARD_VALUES[new Random().nextInt(CARD_VALUES.length)];
-                out.println(pick);
-                System.out.println("client1 Picked " + pick);
-            }
-                
-                
+                if (!message.contains("Result")) {
+                    pick = CARD_VALUES[randomNumber(generatedNumbers)];
+                    System.out.println("client1 Picked " + pick);
+                    out.println(pick);    
+                }
+            }   
             
         } catch (IOException e) {
             System.err.println("Error connecting to server: " + e.getMessage());
         }
     }
+
+    private static int randomNumber(Set<Integer> generatedNumbers) {
+        Random random = new Random();
+        int randomNumber;
+
+        do {
+            randomNumber = random.nextInt(13);
+        } while (!generatedNumbers.add(randomNumber));
+
+        return randomNumber;
+    }
 }
+
